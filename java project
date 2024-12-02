@@ -1,0 +1,88 @@
+import java.awt.*;
+import java.awt.event.*;
+
+public class CreditCardFraudDetection extends Frame implements ActionListener {
+    private final String[] validCardNumbers = { "12345678", "23456789", "34567890", "45678901", "56789012" };
+    private final String[] validPins = { "1234", "2345", "3456", "4567", "5678" };
+    private int incorrectAttempts = 0;
+    private final int maxAttempts = 3;
+    private TextField cardNumberField;
+    private TextField pinField;
+    private Label resultLabel;
+    private Button validateButton;
+
+    public CreditCardFraudDetection() {
+        setTitle("Credit Card Fraud Detection");
+        setSize(400, 300);
+        setLayout(new FlowLayout());
+        setResizable(false);
+
+        Label cardNumberLabel = new Label("Card Number (8 digits):");
+        cardNumberField = new TextField(20);
+        add(cardNumberLabel);
+        add(cardNumberField);
+
+        Label pinLabel = new Label("PIN (4 digits):");
+        pinField = new TextField(20);
+        pinField.setEchoChar('*'); // Mask the PIN input
+        add(pinLabel);
+        add(pinField);
+
+        validateButton = new Button("Validate");
+        validateButton.addActionListener(this);
+        add(validateButton);
+
+        resultLabel = new Label("Enter card number and PIN, then click 'Validate'");
+        add(resultLabel);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String cardNumber = cardNumberField.getText();
+        String pin = pinField.getText();
+        boolean success = false;
+
+        for (int i = 0; i < validCardNumbers.length; i++) {
+            if (cardNumber.equals(validCardNumbers[i]) && pin.equals(validPins[i])) {
+                resultLabel.setText("Access Granted for User " + (i + 1) + "!");
+                incorrectAttempts = 0;
+                success = true;
+                break;
+            }
+        }
+
+        if (!success) {
+            incorrectAttempts++;
+            if (incorrectAttempts >= maxAttempts) {
+                showAlert("Fraud Alert", "Multiple incorrect attempts detected!\nFraud suspected.", true);
+                incorrectAttempts = 0;
+            } else {
+                resultLabel.setText("Invalid details. Attempt " + incorrectAttempts + "/" + maxAttempts);
+            }
+        }
+    }
+
+    private void showAlert(String title, String message, boolean isFraudAlert) {
+        Dialog alertDialog = new Dialog(this, title, true);
+        alertDialog.setLayout(new FlowLayout());
+        alertDialog.setSize(300, 150);
+
+        Label alertLabel = new Label(message, Label.CENTER);
+        alertDialog.add(alertLabel);
+
+        Button okButton = new Button("OK");
+        okButton.addActionListener(e -> alertDialog.setVisible(false));
+        alertDialog.add(okButton);
+
+        if (isFraudAlert) {
+            alertDialog.setBackground(Color.RED);
+        }
+
+        alertDialog.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        CreditCardFraudDetection app = new CreditCardFraudDetection();
+        app.setVisible(true);
+    }
+}
